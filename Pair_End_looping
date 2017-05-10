@@ -1,1 +1,8 @@
-
+for i in *_R1_001.fastq
+do
+  FILENAME=`basename $i _R1_001.fastq`;
+  echo $FILENAME;
+  pear -f ${FILENAME}_R1_001.fastq -r ${FILENAME}_R2_001.fastq -o out/${FILENAME} -y 128G -q 30
+done
+# change -y parameter accordingly and adjust with your computing power, average portable machinwe will only have 8-16g byte of ram so
+# you can change the -y parameter based on this power
