@@ -1,0 +1,6 @@
+for i in out/*.assembled.fastq
+do
+./usearch9.2.64_i86osx32 -fastq_filter $i -fastaout $i.fasta -fastq_maxee 0.5 -relabel @; 
+done;
+# This super simple script will convert fastq to fasta as well as filter the sequence based on the parameter written in the command, in this case 
+# -fastq_maxee 0.5 and relabel it using sample name
