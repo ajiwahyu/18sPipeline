@@ -1,0 +1,16 @@
+./pear_merged2.py;
+./fastq_to_fasta_relabel2.py;
+./cat.py;
+./usearch9.2.64_i86osx32 -fastx_info all_merged_filter.fasta -output reads_info.txt;
+./usearch9.2.64_i86osx32 -fastx_truncate all_merged_filter.fasta -stripleft 21 -stripright 22 -fastaout all_merged_filter_trim.fasta;
+./usearch9.2.64_i86osx32 -fastx_uniques all_merged_filter_trim.fasta -fastaout all_merged_filter_trim_derep.fasta -sizeout;
+./usearch9.2.64_i86osx32 -sortbysize all_merged_filter_trim_derep.fasta -minsize 2 -fastaout all_merged_filter_trim_derep_sort.fasta;
+./usearch9.2.64_i86osx32 -cluster_otus all_merged_filter_trim_derep_sort.fasta -otus all_merged_filter_trim_derep_sort_otus.fasta -relabel OTU_ ;
+./usearch9.2.64_i86osx32 -uchime2_ref all_merged_filter_trim_derep_sort_otus.fasta -db 3803709/pr2_gb203_version_4.5.for_BLAST.fasta -strand plus -mode specific -notmatched all_merged_filter_trim_derep_sort_otus2.fasta; 
+./usearch9.2.64_i86osx32 -usearch_global all_merged_filter_trim.fasta -db all_merged_filter_trim_derep_sort_otus2.fasta -strand plus -id 0.97 -otutabout otu_table.txt;
+assign_taxonomy.py -i all_merged_filter_trim_derep_sort_otus2.fasta -t 90_Silva_111_taxa_map_RDP_6_levels_euks.txt -r 90_Silva_111_rep_set_euk.fasta -m rdp -c 0.8 -o out_taxonomy/ ;
+biom convert -i otu_table.txt -o otu_table.biom --table-type="OTU table" --to-json;
+biom add-metadata --sc-separated taxonomy --observation-header OTUID,taxonomy --observation-metadata-fp out_taxonomy/all_merged_filter_trim_derep_sort_otus2_tax_assignments.txt -i otu_table.biom -o otu_taxassign.biom;
+biom summarize-table -i otu_taxassign.biom -o otu_taxassign_OTUsPersample.txt --qualitative;
+summarize_taxa_through_plots.py -i otu_taxassign.biom -o wf_taxa_summary -m map.txt;
+make_otu_network.py -m map.txt -i otu_taxassign.biom -o otus/OTU_Network;
